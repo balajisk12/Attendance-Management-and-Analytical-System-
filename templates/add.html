@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Add New Student | BIT Portal</title>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .nav-menu {
+            flex-grow: 1;
+            padding-top: 20px;
+        }
+
+        .nav-link {
+            color: #cbd5e1 !important;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-left: 4px solid var(--primary-gold);
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            border-top: 5px solid var(--primary-gold);
+            margin-top: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .btn-capture {
+            background-color: var(--dark-bg);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-capture:hover {
+            background-color: #0f172a;
+            color: var(--primary-gold);
+        }
+
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>BIT PORTAL</h4>
+        </div>
+
+        <div class="nav-menu">
+            <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
+            <a class="nav-link active" href="/add"><i class="material-icons">person_add</i> Add Student</a>
+            <a class="nav-link" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
+            <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
+            <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
+            <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
+            <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
+        </div>
+
+        <div class="footer-credit">
+            Admin: Sabarish.R
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="w-100 mb-4" style="max-width: 700px;">
+            <h2 class="fw-bold text-dark mb-0">Student Registration</h2>
+            <p class="text-muted small">Enter details and capture face data for the portal</p>
+        </div>
+
+        {% if mess %}
+        <div class="alert alert-danger w-100" style="max-width: 700px;">{{ mess }}</div>
+        {% endif %}
+
+        <div class="form-container">
+            <form action="/add" method="POST">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="newusername" class="form-control" placeholder="Enter Name" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Roll Number</label>
+                        <input type="text" name="newuserid" class="form-control" placeholder="Roll No" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="newuseremail" class="form-control" placeholder="email@bitsathy.ac.in" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" name="newphone" class="form-control" placeholder="Phone No" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Department</label>
+                        <select name="newdept" class="form-select" required>
+                            <option value="CSE">CSE</option>
+                            <option value="IT">IT</option>
+                            <option value="ECE">ECE</option>
+                            <option value="MECH">MECH</option>
+                            <option value="AI&DS">AI & DS</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Year of Study</label>
+                        <select name="newyear" class="form-select" required>
+                            <option value="I">I Year</option>
+                            <option value="II">II Year</option>
+                            <option value="III">III Year</option>
+                            <option value="IV">IV Year</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label">Semester</label>
+                        <input type="number" name="newsemester" class="form-control" min="1" max="8" placeholder="1-8" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-capture">
+                    <i class="material-icons align-middle me-1">photo_camera</i> Open Camera & Register
+                </button>
+                <div class="text-center mt-3">
+                    <a href="/" class="text-muted small text-decoration-none">Cancel and Return to Dashboard</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
