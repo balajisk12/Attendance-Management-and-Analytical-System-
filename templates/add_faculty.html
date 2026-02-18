@@ -5,7 +5,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling (Matching add.html) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            width: 100%;
+            border-top: 5px solid var(--primary-gold);
+            margin-top: 20px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .btn-register {
+            background-color: var(--dark-bg);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-register:hover {
+            background-color: #0f172a;
+            color: var(--primary-gold);
+        }
+
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+
+
 </head>
 
 <body>
