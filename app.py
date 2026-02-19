@@ -64,14 +64,6 @@ datetoday2 = date.today().strftime("%d-%B-%Y")
 #### Initializing VideoCapture object to access WebCam
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-# # Time Periods (foornoon, afternoon, night) with corresponding sheet names
-# TIME_PERIODS = {
-#     "foornoon": {"start": "22:08", "end": "22:09", "sheet_name": "sheet1"},
-#     "afternoon": {"start": "22:03", "end": "22:04", "sheet_name": "sheet2"},
-#     "night": {"start": "19:00", "end": "20:15", "sheet_name": "sheet3"},
-# }
-
-
 
 #### Utility Functions
 def totalreg():
@@ -714,6 +706,53 @@ def delete_user(username):
     logging.info(f"Deleted attendance records for user {name} with ID {user_id}")
     
     return redirect(url_for('home'))
+
+@app.route('/add_faculty', methods=['GET', 'POST'])
+def add_faculty():
+    if 'logged_in' not in session or session.get('role') != 'admin':
+        flash("Unauthorized Access!", "danger")
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        # Use .strip() to remove accidental spaces at start/end
+        f_id = request.form.get('faculty_id').strip()
+        name = request.form.get('name').strip()
+        contact = request.form.get('contact').strip()
+        email = request.form.get('email').strip().lower() # Standardize email to lowercase
+        role = request.form.get('role')
+
+        # 1. Check if Faculty ID or Email already exists in either collection
+        existing_faculty = faculties_collection.find_one({"$or": [{"email": email}, {"id": f_id}]})
+        existing_role = user_roles_collection.find_one({"email": email})
+
+        if existing_faculty or existing_role:
+            flash("Error: Faculty ID or Email is already registered in the system.", "warning")
+        else:
+            try:
+                # 2. Insert into Faculties Collection (Full Details)
+                faculties_collection.insert_one({
+                    "id": f_id,
+                    "name": name,
+                    "contact": contact,
+                    "email": email,
+                    "role": role,
+                    "date_added": datetime.now()
+                })
+                
+                # 3. Insert into user_roles (Login Credentials)
+                # Using insert_one instead of update_one to prevent overwriting logic errors
+                user_roles_collection.insert_one({
+                    "email": email,
+                    "role": role,
+                    "id": f_id
+                })
+                
+                flash(f"Success! {name} registered as {role.capitalize()}.", "success")
+                return redirect(url_for('add_faculty'))
+            except Exception as e:
+                flash(f"Database Error: {str(e)}", "danger")
+
+    return render_template('add_faculty.html')
 
 
 @app.route('/set_session', methods=['POST'])
