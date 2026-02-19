@@ -707,6 +707,9 @@ def delete_user(username):
     
     return redirect(url_for('home'))
 
+faculties_collection = db.faculties
+user_roles_collection = db.user_roles
+
 @app.route('/add_faculty', methods=['GET', 'POST'])
 def add_faculty():
     if 'logged_in' not in session or session.get('role') != 'admin':
