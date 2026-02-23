@@ -759,6 +759,17 @@ def add_faculty():
 
 user_roles_collection = db.user_roles
 
+# Helper to check permissions in templates
+@app.context_processor
+def utility_processor():
+    def get_user_role():
+        if 'email' in session:
+            user_data = user_roles_collection.find_one({"email": session['email']})
+            return user_data.get('role', 'student') if user_data else 'student'
+        return None
+    return dict(get_user_role=get_user_role)
+
+
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()
