@@ -757,7 +757,6 @@ def add_faculty():
 
     return render_template('add_faculty.html')
 
-
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()

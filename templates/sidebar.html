@@ -1,0 +1,128 @@
+
+<div class="sidebar bg-dark text-white d-flex flex-column" style="width: 260px; height: 100vh; position: fixed; top: 0; left: 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000;">
+    
+    <div class="pt-4 px-4 pb-2">
+        <h4 class="text-warning mb-1 fw-bold sidebar-header" style="letter-spacing: 1px;">BIT Attendance</h4>
+        
+        <hr class="bg-secondary opacity-25 mt-3 mb-0"> </div>
+
+    <div class="flex-grow-1 overflow-auto px-3">
+        <ul class="nav flex-column mb-4">
+            
+            <li class="nav-item">
+                 <a class="nav-link text-white py-2 px-3" href="{{ url_for('welcome') }}">
+                     <i class="material-icons">home</i> Welcome
+                 </a>
+            </li>
+            
+
+            <div class="text-muted small fw-bold mt-2 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Analytics</div>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('home') }}">
+                    <i class="material-icons">dashboard</i> Today Entries
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('grace_view') }}">
+                     <i class="material-icons">schedule</i> Grace Attendance
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('student_dashboard') }}">
+                    <i class="material-icons">assessment</i> Student Insights
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('hostel_dashboard') }}">
+                    <i class="material-icons">night_shelter</i> Hostel Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('analytics') }}">
+                    <i class="material-icons">query_stats</i> Department Analytics
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('attendance_log') }}">
+                    <i class="material-icons">list_alt</i> Attendance Logs
+                </a>
+            </li>
+           
+
+      
+            <div class="text-muted small fw-bold mt-3 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Management</div>
+            
+             <li class="nav-item">
+                    <a class="nav-link text-white" href="{{ url_for('grace_request_manage') }}">
+                         <i class="material-icons">verified</i> Grace Approvals
+                    </a>
+             </li>
+            
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('add') }}">
+                    <i class="material-icons">person_add</i> Add Student
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('add_faculty') }}">
+                    <i class="material-icons">badge</i> Add Faculty
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('update_student_details') }}">
+                    <i class="material-icons">manage_accounts</i> Manage Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('set_time_periods') }}">
+                    <i class="material-icons">timer</i> Session Timings
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('email_settings') }}">
+                    <i class="material-icons">mail_outline</i> Email Config
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="/working_days">
+                    <i class="material-icons">calendar_today</i> Academic Days
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="/start">
+                    <i class="material-icons">face</i> Capture Attendance
+                </a>
+            </li>
+        
+
+          
+            <div class="text-muted small fw-bold mt-2 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Portal</div>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('student_dashboard') }}">
+                    <i class="material-icons">account_circle</i> Academic Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white py-2 px-3" href="{{ url_for('hostel_dashboard') }}">
+                    <i class="material-icons">night_shelter</i> Hostel Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ url_for('grace_request') }}">
+                    <i class="material-icons">assignment</i> Grace Request
+                </a>
+            </li>
+          
+
+        </ul>
+    </div>
+
+    <div class="p-3">
+        <a class="nav-link text-danger py-2 px-3 w-100 border border-danger border-opacity-25" href="{{ url_for('logout') }}" style="background: rgba(220, 53, 69, 0.05);">
+            <i class="material-icons">logout</i> <span class="fw-bold">Logout</span>
+        </a>
+    </div>
+</div>
