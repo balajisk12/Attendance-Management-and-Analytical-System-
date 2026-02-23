@@ -757,15 +757,37 @@ def add_faculty():
 
     return render_template('add_faculty.html')
 
+user_roles_collection = db.user_roles
+
 @app.route('/set_session', methods=['POST'])
 def set_session():
     data = request.get_json()
     username = data.get('username')
-    if username:
-        session['logged_in'] = True
-        session['username'] = username
-        return {'status': 'success'}, 200
-    return {'status': 'failed'}, 400
+    email = data.get('email')
+
+    if not email:
+        return jsonify({'status': 'failed', 'message': 'Email is required'}), 400
+
+    # Check for role in the user_roles collection
+    user_info = user_roles_collection.find_one({"email": email})
+    
+    if not user_info:
+        # If user is new, default to 'student' role
+        user_roles_collection.insert_one({
+            "email": email,
+            "role": "student",
+            "name": username
+        })
+        role = "student"
+    else:
+        role = user_info.get('role', 'student')
+
+    session['logged_in'] = True
+    session['username'] = username
+    session['email'] = email
+    session['role'] = role 
+    
+    return jsonify({'status': 'success', 'role': role}), 200
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
