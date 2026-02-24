@@ -1,9 +1,10 @@
-
 <div class="sidebar bg-dark text-white d-flex flex-column" style="width: 260px; height: 100vh; position: fixed; top: 0; left: 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000;">
     
     <div class="pt-4 px-4 pb-2">
         <h4 class="text-warning mb-1 fw-bold sidebar-header" style="letter-spacing: 1px;">BIT Attendance</h4>
-        
+        <div class="d-flex align-items-center mt-2">
+            <span class="role-badge">{{ session.get('role', 'User') }}</span>
+        </div>
         <hr class="bg-secondary opacity-25 mt-3 mb-0"> </div>
 
     <div class="flex-grow-1 overflow-auto px-3">
@@ -16,6 +17,7 @@
             </li>
             
 
+            {% if session.get('role') in ['admin', 'faculty'] %}
             <div class="text-muted small fw-bold mt-2 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Analytics</div>
             
             <li class="nav-item">
@@ -50,9 +52,9 @@
                     <i class="material-icons">list_alt</i> Attendance Logs
                 </a>
             </li>
-           
+            {% endif %}
 
-      
+            {% if session.get('role') == 'admin' %}
             <div class="text-muted small fw-bold mt-3 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Management</div>
             
              <li class="nav-item">
@@ -96,9 +98,9 @@
                     <i class="material-icons">face</i> Capture Attendance
                 </a>
             </li>
-        
+            {% endif %}
 
-          
+            {% if session.get('role') == 'student' %}
             <div class="text-muted small fw-bold mt-2 mb-2 ps-3" style="font-size: 10px; text-transform: uppercase;">Portal</div>
             <li class="nav-item">
                 <a class="nav-link text-white py-2 px-3" href="{{ url_for('student_dashboard') }}">
@@ -115,7 +117,7 @@
                     <i class="material-icons">assignment</i> Grace Request
                 </a>
             </li>
-          
+            {% endif %}
 
         </ul>
     </div>
