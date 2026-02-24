@@ -1,3 +1,42 @@
+<style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .flex-grow-1::-webkit-scrollbar { display: none; }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .flex-grow-1 {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .nav-link {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        margin: 2px 0;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        opacity: 0.85;
+    }
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 1;
+        transform: translateX(5px);
+        color: #ffc107 !important;
+    }
+    .nav-link i {
+        margin-right: 12px;
+        font-size: 20px !important;
+    }
+    .role-badge {
+        background: rgba(222, 191, 10, 0.15);
+        color: #debf0a;
+        padding: 2px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+</style>
+
 <div class="sidebar bg-dark text-white d-flex flex-column" style="width: 260px; height: 100vh; position: fixed; top: 0; left: 0; border-right: 1px solid rgba(255,255,255,0.05); z-index: 1000;">
     
     <div class="pt-4 px-4 pb-2">
