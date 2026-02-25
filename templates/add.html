@@ -144,21 +144,13 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <h4>BIT PORTAL</h4>
+            <h4>SATAS Portal</h4>
         </div>
 
-        <div class="nav-menu">
-            <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
-            <a class="nav-link active" href="/add"><i class="material-icons">person_add</i> Add Student</a>
-            <a class="nav-link" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
-            <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
-            <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
-            <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
-            <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
-        </div>
+        {% include 'sidebar.html' %}
 
         <div class="footer-credit">
-            Admin: Sabarish.R
+            Admin: BIT
         </div>
     </div>
 
@@ -194,11 +186,16 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Department</label>
                         <select name="newdept" class="form-select" required>
-                            <option value="CSE">CSE</option>
-                            <option value="IT">IT</option>
-                            <option value="ECE">ECE</option>
-                            <option value="MECH">MECH</option>
                             <option value="AI&DS">AI & DS</option>
+                            <option value="BT">TT</option>
+                            <option value="CSBS">CSBS</option>
+                            <option value="CSE">CSE</option>
+                            <option value="ECE">ECE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="FT">FT</option>
+                            <option value="IT">IT</option>
+                            <option value="MECH">MECH</option>                                                                  
+                            <option value="TT">TT</option>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -215,6 +212,46 @@
                         <input type="number" name="newsemester" class="form-control" min="1" max="8" placeholder="1-8" required>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Residence Type</label>
+
+                    <select name="residence" class="form-select" required>
+                        <option value="">Select Type</option>
+                        <option value="Hosteller">Hosteller</option>
+                       <option value="Day Scholar">Day Scholar</option>
+                 </select>
+                </div>
+                
+ <div class="form-group">
+    <label>Select Mentor ID:</label>
+    <select name="mentor_id" id="mentor_id" class="form-control" onchange="autoFillMentor()" required>
+        <option value="">-- Select Mentor --</option>
+        {% for mentor in mentors %}
+        <option value="{{ mentor.id }}" 
+                data-name="{{ mentor.name }}" 
+                data-email="{{ mentor.email }}" 
+                data-phone="{{ mentor.contact }}">
+            {{ mentor.id }} - {{ mentor.name }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Mentor Name:</label>
+    <input type="text" name="mentor_name" id="mentor_name" class="form-control" readonly>
+</div>
+
+<div class="form-group">
+    <label>Mentor Email:</label>
+    <input type="email" name="mentor_email" id="mentor_email" class="form-control" readonly>
+</div>
+
+<div class="form-group">
+    <label>Mentor Contact:</label>
+    <input type="text" name="mentor_phone" id="mentor_phone" class="form-control" readonly>
+</div>
+
 
                 <button type="submit" class="btn-capture">
                     <i class="material-icons align-middle me-1">photo_camera</i> Open Camera & Register
@@ -227,6 +264,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+<script>
+function autoFillMentor() {
+    const select = document.getElementById("mentor_id");
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (select.value === "") {
+        document.getElementById("mentor_name").value = "";
+        document.getElementById("mentor_email").value = "";
+        document.getElementById("mentor_phone").value = "";
+        return;
+    }
+
+    document.getElementById("mentor_name").value = selectedOption.getAttribute("data-name") || "";
+    document.getElementById("mentor_email").value = selectedOption.getAttribute("data-email") || "";
+    document.getElementById("mentor_phone").value = selectedOption.getAttribute("data-phone") || "";
+}
+
+</script>
+
 </body>
 
 </html>
