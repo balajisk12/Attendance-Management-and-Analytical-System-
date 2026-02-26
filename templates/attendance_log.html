@@ -25,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar Styling */
+        /* Sidebar Styling - Matched to Home */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--dark-bg);
@@ -38,7 +38,7 @@
         .sidebar-header {
             padding: 25px 20px;
             text-align: center;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-header h4 {
@@ -64,12 +64,12 @@
         }
 
         .nav-link:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white !important;
         }
 
         .nav-link.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white !important;
             border-left: 4px solid var(--primary-gold);
         }
@@ -103,13 +103,26 @@
             font-weight: 600;
         }
 
-        /* Table and Elements */
+        /* Elements & Table */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 12px;
+            color: #94a3b8;
+        }
+
         .search-input {
             border-radius: 8px;
-            padding: 10px 15px;
-            border: 1px solid #cbd5e1;
-            width: 300px;
-            font-size: 0.9rem;
+            padding: 8px 12px 8px 40px;
+            border: 1px solid #e2e8f0;
+            width: 320px;
+            font-size: 0.85rem;
+            transition: 0.2s;
         }
 
         .search-input:focus {
@@ -129,6 +142,7 @@
             letter-spacing: 0.025em;
             color: #475569;
             border: none;
+            padding: 15px 20px;
         }
 
         .status-present {
@@ -151,14 +165,15 @@
 
         .thumbnail-img {
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: 0.2s;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .thumbnail-img:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .footer-credit {
@@ -166,7 +181,7 @@
             font-size: 11px;
             color: #94a3b8;
             text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
@@ -177,20 +192,11 @@
         <div class="sidebar-header">
             <h4>BIT PORTAL</h4>
         </div>
-        
-        <div class="nav-menu">
-            <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
-            <a class="nav-link" href="/add"><i class="material-icons">person_add</i> Add Student</a>
-            <a class="nav-link active" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
-            <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
-            <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
-            <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
-            <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
-        
-        </div>
+
+        {% include 'sidebar.html' %}
 
         <div class="footer-credit">
-            Admin: Sabarish.R
+            Admin: BIT
         </div>
     </div>
 
@@ -198,64 +204,98 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="fw-bold text-dark mb-0">Attendance History</h2>
-                <p class="text-muted small">View and manage daily entry logs</p>
+                <p class="text-muted small">View and manage comprehensive entry logs</p>
             </div>
-            <a href="{{ url_for('download_attendance_csv') }}" class="btn btn-dark btn-sm d-flex align-items-center px-3 py-2">
+            <a href="{{ url_for('download_attendance_csv') }}" class="btn btn-dark btn-sm d-flex align-items-center px-3 py-2 shadow-sm">
                 <i class="material-icons me-2" style="font-size: 18px;">download</i> Export CSV
             </a>
         </div>
 
         <div class="glass-card">
             <div class="card-header-custom">
-                <div class="d-flex align-items-center">
-                    <i class="material-icons me-2 text-muted">search</i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Search Roll Number...">
+                <div class="search-container">
+                    <i class="material-icons">search</i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search by Roll Number or Name...">
                 </div>
-                <div class="text-muted small">
-                    Showing all records
+                <div class="text-muted small fw-bold">
+                    Historical Data
                 </div>
             </div>
-            
+
             <div class="p-0">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0" id="studentTable">
                         <thead>
-                            <tr>
-                                <th class="ps-4">S No</th>
-                                <th>Face</th>
-                                <th>Student Name</th>
-                                <th>ID / Roll</th>
-                                <th>Date</th>
-                                <th>Time</th>
-                                <th class="pe-4">Status</th>
-                            </tr>
-                        </thead>
+<tr>
+    <th class="ps-4">S No</th>
+    <th>Verification</th>
+    <th>Student Name</th>
+    <th>ID / Roll</th>
+    <th>Date</th>
+    <th>Time</th>
+
+    <!-- NEW -->
+    <th>Session</th>
+
+    <th class="pe-4 text-end">Status</th>
+</tr>
+</thead>
                         <tbody>
-                            {% for record in attendance_data %}
-                            <tr>
-                                <td class="ps-4 text-muted">{{ loop.index }}</td>
-                                <td>
-                                    {% if record.face_image %}
-                                    <img src="data:image/jpeg;base64,{{ record.face_image }}" alt="Face" width="40" height="40" 
-                                         class="thumbnail-img" data-bs-toggle="modal" data-bs-target="#imageModal"
-                                         onclick="showImage('{{ record.face_image }}')">
-                                    {% else %}
-                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
-                                        <i class="material-icons text-muted" style="font-size: 18px;">person_off</i>
-                                    </div>
-                                    {% endif %}
-                                </td>
-                                <td class="fw-bold text-dark">{{ record.name }}</td>
-                                <td class="text-secondary">{{ record.roll }}</td>
-                                <td>{{ record.date }}</td>
-                                <td>{{ record.time }}</td>
-                                <td class="pe-4">
-                                    <span class="{% if record.status == 'Present' %}status-present{% else %}status-absent{% endif %}">
-                                        {{ record.status }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                            {% if attendance_data %}
+                                {% for record in attendance_data %}
+                                <tr>
+                                    <td class="ps-4 text-muted small">{{ loop.index }}</td>
+                                    <td>
+                                        {% if record.face_image %}
+                                        <img src="data:image/jpeg;base64,{{ record.face_image }}" alt="Face" width="45" height="45" 
+                                             class="thumbnail-img" data-bs-toggle="modal" data-bs-target="#imageModal"
+                                             onclick="showImage('{{ record.face_image }}')">
+                                        {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:45px; height:45px; border: 1px dashed #cbd5e1;">
+                                            <i class="material-icons text-muted" style="font-size: 20px;">no_photography</i>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="fw-bold text-dark">{{ record.name }}</span></td>
+                                    <td class="text-secondary">{{ record.roll }}</td>
+                                    <td class="small">{{ record.date }}</td>
+                                    <td class="small">{{ record.time }}</td>
+
+                                     <td class="small">
+                                        {% if record.session == 'forenoon' %}
+                                            <span class="badge" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;">
+                                                ☀ Forenoon
+                                            </span>
+                                        
+                                        {% elif record.session == 'afternoon' %}
+                                            <span class="badge" style="background:#cfe2ff; color:#084298; border:1px solid #b6d4fe;">
+                                                🌤 Afternoon
+                                            
+                                        {% elif record.session == 'night' %}
+                                            <span class="badge" style="background:#e2e3e5; color:#41464b; border:1px solid #d3d6d8;">
+                                                🌙 Night
+                                            </span>
+                                        
+                                        {% else %}
+                                            <span class="badge bg-secondary">-</span>
+                                        {% endif %}
+                                        </td>                        
+                                    
+                                    <td class="pe-4 text-end">
+                                        <span class="{% if record.status == 'Present' %}status-present{% else %}status-absent{% endif %}">
+                                            {{ record.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="material-icons d-block mb-2" style="font-size: 48px; opacity: 0.2;">folder_open</i>
+                                        No logs found in the database.
+                                    </td>
+                                </tr>
+                            {% endif %}
                         </tbody>
                     </table>
                 </div>
@@ -265,13 +305,13 @@
 
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header">
-                    <h6 class="modal-title fw-bold">Verification Image</h6>
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
+                <div class="modal-header border-0">
+                    <h6 class="modal-title fw-bold text-dark">Face Verification Log</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center bg-light p-4">
-                    <img id="modalImage" src="" alt="Full Face" style="max-width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <img id="modalImage" src="" alt="Full Face" style="max-width: 100%; border-radius: 12px; border: 5px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
                 </div>
             </div>
         </div>
@@ -288,7 +328,8 @@
             const rows = document.querySelectorAll('#studentTable tbody tr');
             rows.forEach(row => {
                 const rollNumber = row.cells[3].textContent.toLowerCase(); 
-                row.style.display = rollNumber.includes(searchTerm) ? '' : 'none';
+                const name = row.cells[2].textContent.toLowerCase();
+                row.style.display = (rollNumber.includes(searchTerm) || name.includes(searchTerm)) ? '' : 'none';
             });
         });
     </script>
