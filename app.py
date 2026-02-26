@@ -64,6 +64,48 @@ datetoday2 = date.today().strftime("%d-%B-%Y")
 #### Initializing VideoCapture object to access WebCam
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
+user_roles_collection = db.user_roles
+
+# Helper to check permissions in templates
+@app.context_processor
+def utility_processor():
+    def get_user_role():
+        if 'email' in session:
+            user_data = user_roles_collection.find_one({"email": session['email']})
+            return user_data.get('role', 'student') if user_data else 'student'
+        return None
+    return dict(get_user_role=get_user_role)
+
+
+@app.route('/set_session', methods=['POST'])
+def set_session():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+
+    if not email:
+        return jsonify({'status': 'failed', 'message': 'Email is required'}), 400
+
+    # Check for role in the user_roles collection
+    user_info = user_roles_collection.find_one({"email": email})
+    
+    if not user_info:
+        # If user is new, default to 'student' role
+        user_roles_collection.insert_one({
+            "email": email,
+            "role": "student",
+            "name": username
+        })
+        role = "student"
+    else:
+        role = user_info.get('role', 'student')
+
+    session['logged_in'] = True
+    session['username'] = username
+    session['email'] = email
+    session['role'] = role 
+    
+    return jsonify({'status': 'success', 'role': role}), 200
 
 #### Utility Functions
 def totalreg():
@@ -134,13 +176,42 @@ def play_voice_message(message):
         pygame.time.Clock().tick(10)
 
 def add_attendance(name):
+
+    # 1) Get current session
+    current_period = get_time_period()
+
+    # Ignore silently if outside any session
+    if current_period is None:
+        return False
+
+
     username, userid = name.split('_')
     current_time = datetime.now().strftime("%H:%M:%S")
-    
-    if not attendance_collection.find_one({"roll": userid, "date": datetoday}):
-        attendance_collection.insert_one({"name": username, "roll": userid, "time": current_time, "date": datetoday})
-        return True
-    return False
+
+    # 2) Check duplicate ONLY FOR SAME SESSION
+    exists = attendance_collection.find_one({
+        "roll": userid,
+        "date": datetoday,
+        "session": current_period      
+    })
+
+    if exists:
+        return False
+
+
+    # 3) Insert session wise attendance
+    attendance_collection.insert_one({
+        "name": username,
+        "roll": userid,
+        "time": current_time,
+        "date": datetoday,
+
+        # 🔥 NEW COLUMN
+        "session": current_period
+    })
+
+    return True
+
 
 #### Route Functions
 @app.route('/')
@@ -660,6 +731,7 @@ def update_google_sheet(attendance_data, time_period):
         print(f"Google Sheets API error: {api_error}")
     except Exception as e:
         print(f"Unexpected error: {e}")
+
 @app.route('/download_attendance_csv')
 def download_attendance_csv():
     attendance_records = attendance_collection.find().sort("date", -1)
@@ -757,48 +829,7 @@ def add_faculty():
 
     return render_template('add_faculty.html')
 
-user_roles_collection = db.user_roles
 
-# Helper to check permissions in templates
-@app.context_processor
-def utility_processor():
-    def get_user_role():
-        if 'email' in session:
-            user_data = user_roles_collection.find_one({"email": session['email']})
-            return user_data.get('role', 'student') if user_data else 'student'
-        return None
-    return dict(get_user_role=get_user_role)
-
-
-@app.route('/set_session', methods=['POST'])
-def set_session():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-
-    if not email:
-        return jsonify({'status': 'failed', 'message': 'Email is required'}), 400
-
-    # Check for role in the user_roles collection
-    user_info = user_roles_collection.find_one({"email": email})
-    
-    if not user_info:
-        # If user is new, default to 'student' role
-        user_roles_collection.insert_one({
-            "email": email,
-            "role": "student",
-            "name": username
-        })
-        role = "student"
-    else:
-        role = user_info.get('role', 'student')
-
-    session['logged_in'] = True
-    session['username'] = username
-    session['email'] = email
-    session['role'] = role 
-    
-    return jsonify({'status': 'success', 'role': role}), 200
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
