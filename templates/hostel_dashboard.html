@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Hostel Attendance | BIT Portal</title>
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .nav-menu { flex-grow: 1; padding-top: 20px; }
+
+        .nav-link {
+            color: #cbd5e1 !important;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+        }
+
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+            border-left: 4px solid var(--primary-gold);
+        }
+
+        .nav-link i { margin-right: 12px; font-size: 20px; }
+
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .card-header-custom {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .stat-box {
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .bg-total { background-color: #64748b; }
+        .bg-present { background-color: #10b981; }
+        .bg-absent { background-color: #ef4444; }
+
+        .scrollable-list {
+            max-height: 250px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h4>BIT PORTAL</h4>
+    </div>
+
+    <div class="nav-menu">
+        <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
+        <a class="nav-link" href="/add"><i class="material-icons">person_add</i> Add Student</a>
+        <a class="nav-link" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
+        <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
+        <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
+        <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
+        <a class="nav-link" href="/analytics"><i class="material-icons">insights</i> Analytics</a>
+        <a class="nav-link" href="/student_dashboard"><i class="material-icons">person</i> Student Dashboard</a>
+        <a class="nav-link" href="/working_days"><i class="material-icons">event</i> Working Days</a>
+        <a class="nav-link active" href="{{ url_for('hostel_dashboard') }}"><i class="material-icons">hotel</i> Hostel Attendance</a>
+        <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
+    </div>
+
+    <div class="footer-credit">Admin: BIT</div>
+</div>
+
+<div class="content-wrapper">
+
+<!-- TOP RIGHT DATE FILTER -->
+<div class="d-flex justify-content-end mb-3">
+    <form method="GET" class="d-flex gap-2 align-items-center">
+        <input type="date"
+               name="date"
+               value="{{selected_date}}"
+               class="form-control form-control-sm"
+               style="width:170px;">
+        <button class="btn btn-sm btn-dark px-3">Load</button>
+    </form>
+</div>
+
+<!-- STUDENT INVESTIGATION -->
+<div class="glass-card">
+<div class="card-header-custom">
+    <div class="d-flex align-items-center">
+        <i class="material-icons me-2 text-muted">person_search</i>
+        <span>Student Investigation</span>
+    </div>
+</div>
+
+<div class="p-4">
+<div class="row">
+
+<div class="col-lg-5">
+<form method="POST" class="input-group mb-4">
+<input type="text" name="search_roll" class="form-control" placeholder="Enter Roll Number">
+<button class="btn btn-dark">Search</button>
+</form>
+
+{% if search_data %}
+<div class="p-3 border rounded bg-light">
+<h5 class="fw-bold">{{ search_data.student.name }}</h5>
+<p class="small">Today:
+<span class="text-{{ 'success' if search_data.today_status=='Present' else 'danger' }}">
+{{ search_data.today_status }}
+</span></p>
+
+<p class="small">Overall Attendance: {{ search_data.percentage }}%</p>
+</div>
+{% endif %}
+</div>
+
+<div class="col-lg-7">
+{% if search_data %}
+<h6 class="small text-muted">HISTORICAL ABSENT DATES</h6>
+<div class="scrollable-list p-2">
+{% for d in search_data.absent_dates %}
+<div class="small border-bottom py-1">{{ d }}</div>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- NIGHT SUMMARY -->
+<div class="glass-card">
+
+<div class="card-header-custom">
+<div class="d-flex align-items-center">
+<i class="material-icons me-2 text-muted">analytics</i>
+<span>Nightly Summary</span>
+</div>
+
+<div class="text-muted small">
+Date: {{selected_date}}
+</div>
+</div>
+
+<div class="p-4">
+
+<!-- 4 STAT BOXES -->
+<div class="row g-3 mb-4">
+
+<div class="col-md-3">
+<div class="stat-box bg-total">
+<div class="small opacity-75">Total Strength</div>
+<h3 class="mb-0 fw-bold">{{ stats.total }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box bg-present">
+<div class="small opacity-75">Present</div>
+<h3 class="mb-0 fw-bold">{{ stats.present_count }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box bg-absent">
+<div class="small opacity-75">Absent</div>
+<h3 class="mb-0 fw-bold">{{ stats.absent_count }}</h3>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="stat-box" style="background:#3b82f6;">
+<div class="small opacity-75">Attendance %</div>
+<h3 class="mb-0 fw-bold">{{ stats.percent }}%</h3>
+</div>
+</div>
+
+</div>
+
+<!-- LISTS -->
+<div class="row g-4">
+
+<div class="col-md-6">
+<h6 class="small text-muted">PRESENT LIST</h6>
+<div class="scrollable-list">
+<ul class="list-group list-group-flush">
+{% for s in stats.present_list %}
+<li class="list-group-item small">
+{{ s.name }} — {{ s.id }}
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+
+<div class="col-md-6">
+<h6 class="small text-muted">ABSENT LIST</h6>
+<div class="scrollable-list">
+<ul class="list-group list-group-flush">
+{% for s in stats.absent_list %}
+<li class="list-group-item small text-danger">
+{{ s.name }} — {{ s.id }}
+</li>
+{% endfor %}
+</ul>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+</div>
+</body>
+</html>
