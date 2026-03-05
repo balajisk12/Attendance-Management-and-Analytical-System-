@@ -849,167 +849,110 @@ def logout():
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
-
 @app.route('/hostel_dashboard', methods=['GET', 'POST'])
 def hostel_dashboard():
-
     if 'logged_in' not in session:
         return redirect(url_for('login'))
-    
+
+    user_role = session.get('role')
+    user_email = session.get('email')
+
+    # ===== DATE HANDLING =====
     selected_date = request.args.get("date")
-
-    if selected_date:
-        try:
-            # convert 2025-02-04 → 02_04_25
+    try:
+        if selected_date:
             date_obj = datetime.strptime(selected_date, "%Y-%m-%d")
-            db_date = date_obj.strftime("%m_%d_%y")
-        except:
-            db_date = date.today().strftime("%m_%d_%y")
-            selected_date = date.today().strftime("%Y-%m-%d")
-    else:
-        db_date = date.today().strftime("%m_%d_%y")
-        selected_date = date.today().strftime("%Y-%m-%d")
+        else:
+            date_obj = datetime.today()
+    except:
+        date_obj = datetime.today()
 
+    db_date = date_obj.strftime("%m_%d_%y")
+    selected_date = date_obj.strftime("%Y-%m-%d")
 
-    # =====================================================
-    # 1) GET HOSTEL STUDENTS
-    # =====================================================
-    hostel_students = list(
-        users_collection.find({
-            "residence": {"$regex": "hostel", "$options": "i"}
-        })
-    )
-
+    # ===== GET HOSTEL STUDENTS (Master List) =====
+    hostel_students = list(users_collection.find({
+        "residence": {"$regex": "hostel", "$options": "i"}
+    }))
     total_hostel = len(hostel_students)
 
-    # =====================================================
-    # 2) TODAY NIGHT ATTENDANCE
-    # =====================================================
-    present_today_records = list(
-        attendance_collection.find({
-            "date": db_date,
-            "session": "night"
-        })
-    )
+    # ===== TODAY NIGHT SESSION STATS =====
+    today_night = list(attendance_collection.find({
+        "date": db_date,
+        "session": "night"
+    }))
 
-    present_rolls = [str(r['roll']) for r in present_today_records]
+    # Set of rolls present tonight (converted to string and stripped for safety)
+    present_rolls = set([str(r['roll']).strip() for r in today_night])
 
-    # =====================================================
-    # 3) LIST CREATION FOR FIRST DIV
-    # =====================================================
-    present_list = [
-        {"name": s.get("name"), "id": s.get("id")}
-        for s in hostel_students
-        if str(s.get("id")) in present_rolls
-    ]
+    # --- NEW LOGIC TO BUILD LISTS ---
+    present_list = []
+    absent_list = []
 
-    absent_list = [
-        {"name": s.get("name"), "id": s.get("id")}
-        for s in hostel_students
-        if str(s.get("id")) not in present_rolls
-    ]
+    for student in hostel_students:
+        # Match based on the student 'id' field
+        student_id = str(student.get('id')).strip()
+        
+        if student_id in present_rolls:
+            present_list.append(student)
+        else:
+            absent_list.append(student)
 
+    # Pass the actual lists into the stats dictionary
     stats = {
         "total": total_hostel,
-
         "present_count": len(present_list),
         "absent_count": len(absent_list),
-
-        "percent": round(
-            (len(present_list) / total_hostel) * 100, 2
-        ) if total_hostel > 0 else 0,
-
+        "percent": round((len(present_list) / total_hostel) * 100, 2) if total_hostel else 0,
         "present_list": present_list,
         "absent_list": absent_list
     }
 
-    # =====================================================
-    # 4) INDIVIDUAL SEARCH – CORRECT HOSTEL LOGIC
-    # =====================================================
+    # ===== INDIVIDUAL SEARCH =====
     search_data = None
+    search_roll = None
 
-    if request.method == 'POST' and 'search_roll' in request.form:
+    if user_role == 'student':
+        student_rec = users_collection.find_one({"email": user_email})
+        if student_rec:
+            search_roll = str(student_rec.get('id'))
+    elif request.method == 'POST':
+        search_roll = request.form.get('search_roll')
 
-        roll_query = request.form.get('search_roll').strip()
-
+    if search_roll:
         student = users_collection.find_one({
-            "$or": [
-                {"id": roll_query},
-                {"id": int(roll_query) if roll_query.isdigit() else None}
-            ],
+            "id": search_roll,
             "residence": {"$regex": "hostel", "$options": "i"}
         })
 
         if student:
+            # Re-using student_id for clarity
+            sid = str(student['id'])
+            
+            # Get all historical night records for this student
+            history = list(attendance_collection.find({"roll": sid, "session": "night"}))
+            attended_dates = {r['date'].strip() for r in history}
 
-            student_id = student['id']
+            # Find the very first attendance record in the DB to calculate start date
+            first_rec = attendance_collection.find_one(sort=[("date", 1)])
+            start = datetime.strptime(first_rec['date'], "%m_%d_%y") if first_rec else datetime.today()
+            end = date_obj
 
-            # -----------------------------
-            # 1) GET STUDENT ATTENDED DAYS
-            # -----------------------------
-            attended_records = list(
-                attendance_collection.find({
-                    "roll": student_id,
-                    "session": "night"
-                })
-            )
-
-            attended_dates = [r['date'] for r in attended_records]
-
-            # ---------------------------------------------------
-            # 2) BUILD ALL CALENDAR DAYS (HOSTEL = EVERYDAY)
-            # ---------------------------------------------------
-            start_record = attendance_collection.find_one(sort=[("date", 1)])
-
-            if start_record:
-                first_day = datetime.strptime(start_record["date"], "%m_%d_%y")
-            else:
-                first_day = datetime.today()
-
-            last_day = datetime.strptime(db_date, "%m_%d_%y")
-
-            all_days = []
-            cur = first_day
-
-            while cur <= last_day:
-                all_days.append(cur.strftime("%m_%d_%y"))
-                cur += timedelta(days=1)
-
-            total_days = len(all_days)
-
-            # ---------------------------------------------------
-            # 3) ABSENT DAYS = ALL DAYS – ATTENDED
-            # ---------------------------------------------------
-            absent_dates = [
-                d for d in all_days
-                if d not in attended_dates
-            ]
-
-            # ---------------------------------------------------
-            # 4) CORRECT PERCENTAGE
-            # ---------------------------------------------------
-            indiv_percent = round(
-                (len(attended_dates) / total_days) * 100, 2
-            ) if total_days > 0 else 0
-
-            # ---------------------------------------------------
-            # 5) TODAY STATUS FIX
-            # ---------------------------------------------------
-            today_record = attendance_collection.find_one({
-                "roll": student_id,
-                "date": db_date,
-                "session": "night"
-            })
+            total_days = 0
+            absent_display = []
+            curr = start
+            while curr <= end:
+                d_db = curr.strftime("%m_%d_%y")
+                total_days += 1
+                if d_db not in attended_dates:
+                    absent_display.append(curr.strftime("%d-%m-%Y"))
+                curr += timedelta(days=1)
 
             search_data = {
                 "student": student,
-
-                "absent_dates": absent_dates,
-
-                "percentage": indiv_percent,
-
-                "today_status":
-                    "Present" if today_record else "Absent"
+                "absent_dates": sorted(absent_display, reverse=True),
+                "percentage": round((len(attended_dates) / total_days) * 100, 2) if total_days else 0,
+                "today_status": "Present" if db_date in attended_dates else "Absent"
             }
 
     return render_template(
