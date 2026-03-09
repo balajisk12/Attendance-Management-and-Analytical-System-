@@ -962,6 +962,140 @@ def hostel_dashboard():
         selected_date=selected_date
     )
 
+@app.route('/student_dashboard', methods=['GET','POST'])
+def student_dashboard():
+
+    data = None
+    error = None
+
+    if request.method == 'POST':
+
+        roll = request.form.get('roll')
+
+        # ----------- CHECK STUDENT -----------
+        student = users_collection.find_one({"id": roll})
+
+        if not student:
+            error = "Student Not Found"
+
+        else:
+
+            # ----------- GET CALENDAR CONFIG -----------
+            config = db.academic_config.find_one()
+
+            if not config:
+                error = "Academic calendar not configured"
+
+            else:
+
+                # ==========================================
+                # 1. WORKING DAYS TILL TODAY → FOR %
+                # ==========================================
+
+                today = date.today().strftime("%Y-%m-%d")
+
+                working_till_today = get_working_days(
+                    config['start_date'],
+                    today,
+                    config['holidays'],
+                    config['weekly_off']
+                )
+
+                # ==========================================
+                # 2. TOTAL SEMESTER WORKING DAYS
+                # ==========================================
+
+                total_sem_working = get_working_days(
+                    config['start_date'],
+                    config['end_date'],
+                    config['holidays'],
+                    config['weekly_off']
+                )
+
+                # ==========================================
+                # 3. ATTENDED DAYS
+                # ==========================================
+
+                attended = attendance_collection.count_documents({
+                    "roll": roll
+                })
+
+                # ==========================================
+                # 4. CURRENT PERCENTAGE (TILL TODAY)
+                # ==========================================
+
+                percent = round(
+                    (attended / working_till_today) * 100, 2
+                ) if working_till_today else 0
+
+
+                # ==========================================
+                # 5. CALCULATION AS PER YOUR SCENARIOS
+                # ==========================================
+
+                T = total_sem_working          # e.g 26
+                W = working_till_today         # e.g 11
+                A = attended                   # attended till today
+
+                # ----- required attendance for 80% -----
+                required = int(0.8 * T)
+                if (0.8 * T) != int(0.8 * T):
+                    required += 1              # ceil logic
+
+
+                already_leave = W - A
+
+                remaining_days = T - W
+
+                need_more_attendance = required - A
+
+
+                # -------- MAIN DECISION --------
+
+                if need_more_attendance <= 0:
+                    # already safe → can take all remaining days
+                    can_leave = remaining_days
+
+                elif need_more_attendance > remaining_days:
+                    # impossible case
+                    can_leave = -1
+
+                else:
+                    can_leave = remaining_days - need_more_attendance
+
+
+
+                # ==========================================
+                # 6. SEND TO UI
+                # ==========================================
+
+                data = {
+
+                    "name": student['name'],
+                    "dept": student.get('department','-'),
+                    "year": student.get('year','-'),
+
+                    "attended": A,
+
+                    "working_till_today": W,
+
+                    "total_semester_days": T,
+
+                    "percent": percent,
+
+                    "already_leave": already_leave,
+
+                    "can_leave": can_leave,
+
+                    "required_attendance": required
+                }
+
+
+    return render_template(
+        "student_dashboard.html",
+        data=data,
+        error=error
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
