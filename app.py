@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, flash, ses
 import os
 import cv2
 import numpy as np
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import joblib
 from sklearn.neighbors import KNeighborsClassifier
 from gtts import gTTS
@@ -961,6 +961,29 @@ def hostel_dashboard():
         search_data=search_data,
         selected_date=selected_date
     )
+
+def get_working_days(start, end, holidays, weekly_off):
+
+    s = datetime.strptime(start, "%Y-%m-%d")
+    e = datetime.strptime(end, "%Y-%m-%d")
+
+    weekly_off = [w.lower() for w in weekly_off]
+    holidays = [h.strip() for h in holidays]
+
+    total = 0
+    current = s
+
+    while current <= e:
+
+        day_name = current.strftime("%A").lower()
+        date_str = current.strftime("%Y-%m-%d")
+
+        if day_name not in weekly_off and date_str not in holidays:
+            total += 1
+
+        current += timedelta(days=1)
+
+    return total
 
 @app.route('/student_dashboard', methods=['GET','POST'])
 def student_dashboard():
