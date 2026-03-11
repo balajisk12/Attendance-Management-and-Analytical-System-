@@ -987,47 +987,43 @@ def get_working_days(start, end, holidays, weekly_off):
 
 @app.route('/student_dashboard', methods=['GET','POST'])
 def student_dashboard():
-
     data = None
     error = None
 
     if request.method == 'POST':
-
         roll = request.form.get('roll')
-
-        # ----------- CHECK STUDENT -----------
         student = users_collection.find_one({"id": roll})
 
         if not student:
             error = "Student Not Found"
-
         else:
-
-            # ----------- GET CALENDAR CONFIG -----------
-            config = db.academic_config.find_one()
+            # Get the year of the student (e.g., "1", "2", "3", or "4")
+            student_year = str(student.get('year'))
+            
+            # Find config specific to that student's year
+            config = db.academic_config.find_one({"year": student_year})
 
             if not config:
-                error = "Academic calendar not configured"
-
+                error = f"Academic calendar not configured for Year {student_year}"
             else:
+                today_obj = date.today()
+                start_obj = datetime.strptime(config['start_date'], "%Y-%m-%d").date()
+                
+                # Determine "Working days till today" 
+                # (Clamp to end_date if today is after semester ends)
+                end_obj = datetime.strptime(config['end_date'], "%Y-%m-%d").date()
+                calculation_end = min(today_obj, end_obj)
+                calculation_end_str = calculation_end.strftime("%Y-%m-%d")
 
-                # ==========================================
-                # 1. WORKING DAYS TILL TODAY → FOR %
-                # ==========================================
-
-                today = date.today().strftime("%Y-%m-%d")
-
+                # 1. Working days till today
                 working_till_today = get_working_days(
                     config['start_date'],
-                    today,
+                    calculation_end_str,
                     config['holidays'],
                     config['weekly_off']
                 )
 
-                # ==========================================
-                # 2. TOTAL SEMESTER WORKING DAYS
-                # ==========================================
-
+                # 2. Total semester working days
                 total_sem_working = get_working_days(
                     config['start_date'],
                     config['end_date'],
@@ -1035,90 +1031,43 @@ def student_dashboard():
                     config['weekly_off']
                 )
 
-                # ==========================================
-                # 3. ATTENDED DAYS
-                # ==========================================
+                # 3. Attended Days
+                attended = attendance_collection.count_documents({"roll": roll})
 
-                attended = attendance_collection.count_documents({
-                    "roll": roll
-                })
+                # 4. Percentage till today
+                percent = round((attended / working_till_today) * 100, 2) if working_till_today else 0
 
-                # ==========================================
-                # 4. CURRENT PERCENTAGE (TILL TODAY)
-                # ==========================================
-
-                percent = round(
-                    (attended / working_till_today) * 100, 2
-                ) if working_till_today else 0
-
-
-                # ==========================================
-                # 5. CALCULATION AS PER YOUR SCENARIOS
-                # ==========================================
-
-                T = total_sem_working          # e.g 26
-                W = working_till_today         # e.g 11
-                A = attended                   # attended till today
-
-                # ----- required attendance for 80% -----
-                required = int(0.8 * T)
-                if (0.8 * T) != int(0.8 * T):
-                    required += 1              # ceil logic
-
-
+                # 5. Leave Calculations (Target 80%)
+                T = total_sem_working
+                W = working_till_today
+                A = attended
+                required = int(np.ceil(0.8 * T))
+                
                 already_leave = W - A
-
                 remaining_days = T - W
+                need_more = required - A
 
-                need_more_attendance = required - A
-
-
-                # -------- MAIN DECISION --------
-
-                if need_more_attendance <= 0:
-                    # already safe → can take all remaining days
+                if need_more <= 0:
                     can_leave = remaining_days
-
-                elif need_more_attendance > remaining_days:
-                    # impossible case
-                    can_leave = -1
-
+                elif need_more > remaining_days:
+                    can_leave = -1 # Impossible
                 else:
-                    can_leave = remaining_days - need_more_attendance
-
-
-
-                # ==========================================
-                # 6. SEND TO UI
-                # ==========================================
+                    can_leave = remaining_days - need_more
 
                 data = {
-
                     "name": student['name'],
                     "dept": student.get('department','-'),
-                    "year": student.get('year','-'),
-
+                    "year": student_year,
                     "attended": A,
-
                     "working_till_today": W,
-
                     "total_semester_days": T,
-
                     "percent": percent,
-
                     "already_leave": already_leave,
-
                     "can_leave": can_leave,
-
                     "required_attendance": required
                 }
 
-
-    return render_template(
-        "student_dashboard.html",
-        data=data,
-        error=error
-    )
+    return render_template("student_dashboard.html", data=data, error=error)
 
 if __name__ == '__main__':
     app.run(debug=True)
