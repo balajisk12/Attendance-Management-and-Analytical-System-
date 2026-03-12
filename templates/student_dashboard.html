@@ -2,284 +2,391 @@
 <html lang="en">
 
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Student Dashboard | BIT Attendance Portal</title>
 
-<title>Student Dashboard | BIT Attendance Portal</title>
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b; /* Matched to home.html */
+        }
 
-<style>
-:root {
-    --sidebar-width: 260px;
-    --primary-gold: #debf0a;
-    --dark-bg: #1e293b;
-}
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
 
-body {
-    background-color: #ffffff;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    display: flex;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-}
+        /* Sidebar Styling (Matched to home.html) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
 
-/* ---------- SIDEBAR ---------- */
-.sidebar {
-    width: var(--sidebar-width);
-    background-color: var(--dark-bg);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
 
-.sidebar-header {
-    padding: 25px 20px;
-    text-align: center;
-    background: rgba(0,0,0,0.2);
-}
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
 
-.sidebar-header h4 {
-    font-size: 1.1rem;
-    color: var(--primary-gold);
-    margin: 0;
-    font-weight: 700;
-    text-transform: uppercase;
-}
+        .nav-menu {
+            flex-grow: 1;
+            padding-top: 20px;
+        }
 
-.nav-menu {
-    flex-grow: 1;
-    padding-top: 20px;
-}
+        .nav-link {
+            color: #cbd5e1 !important;
+            padding: 12px 25px;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
 
-.nav-link {
-    color: #cbd5e1 !important;
-    padding: 12px 25px;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    transition: 0.2s;
-}
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+        }
 
-.nav-link:hover {
-    background: rgba(255,255,255,0.1);
-    color: white !important;
-}
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white !important;
+            border-left: 4px solid var(--primary-gold);
+        }
 
-.nav-link.active {
-    background: rgba(255,255,255,0.1);
-    color: white !important;
-    border-left: 4px solid var(--primary-gold);
-}
+        .nav-link i {
+            margin-right: 12px;
+            font-size: 20px;
+        }
 
-.nav-link i {
-    margin-right: 12px;
-    font-size: 20px;
-}
+        /* Content Area */
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+        }
 
-.footer-credit {
-    padding: 15px;
-    font-size: 11px;
-    color: #94a3b8;
-    text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.05);
-}
+        .glass-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-bottom: 20px;
+            transition: all 0.3s ease; /* Animation property */
+        }
 
-/* ---------- CONTENT ---------- */
+        /* Hover Animation for Metric Boxes */
+        .row .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-gold);
+        }
 
-.content-wrapper {
-    flex-grow: 1;
-    overflow-y: auto;
-    background-color: #f8fafc;
-    padding: 30px;
-}
+        .card-header-custom {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
 
-.glass-card {
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+        /* Stats Icon Boxes */
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            transition: transform 0.3s ease;
+        }
 
-.card-header-custom {
-    padding: 15px 20px;
-    border-bottom: 2px solid var(--primary-gold);
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-}
+        .glass-card:hover .icon-box {
+            transform: scale(1.1);
+        }
 
-</style>
+        /* Table Styling */
+        .table thead {
+            background-color: #f1f5f9;
+        }
 
+        .table thead th {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            color: #475569;
+            border: none;
+        }
 
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
 
+        /* Attendance Circle Animation */
+        .circle-svg { transform: rotate(-90deg); }
+        
+        /* Custom Progress Bar for Table */
+        .table-progress {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 150px;
+        }
+    </style>
 </head>
 
 <body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>BIT PORTAL</h4>
+        </div>
+        
+        <div class="nav-menu">
+            <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
+            <a class="nav-link" href="/add"><i class="material-icons">person_add</i> Add Student</a>
+            <a class="nav-link" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
+            <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
+            <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
+            <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
+            <a class="nav-link" href="/analytics"><i class="material-icons">insights</i> Analytics</a>
+            <a class="nav-link active" href="/student_dashboard"><i class="material-icons">person</i> Student Dashboard</a>
+            <a class="nav-link" href="/working_days"><i class="material-icons">event</i> Working Days</a>
+            <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
+        </div>
 
-<!-- =============== SIDEBAR (SAME AS HOME.HTML) =============== -->
+        <div class="footer-credit">
+            Admin: BIT
+        </div>
+    </div>
 
-<div class="sidebar">
+    <div class="content-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-0">Student Insights</h2>
+                <p class="text-muted small">Personalized attendance track and analytics</p>
+            </div>
+            
+            <form method="post" class="d-flex">
+                <input name="roll" class="form-control me-2 shadow-sm" placeholder="Enter Roll Number" style="width: 220px;" required>
+                <button class="btn btn-dark px-4 shadow-sm">Search</button>
+            </form>
+        </div>
 
-<div class="sidebar-header">
-<h4>BIT PORTAL</h4>
-</div>
+        {% if error %}
+        <div class="alert alert-danger border-0 shadow-sm mb-4">
+            <i class="material-icons align-middle me-2">error</i> {{error}}
+        </div>
+        {% endif %}
 
-<div class="nav-menu">
+        {% if data %}
+        <div class="glass-card p-4">
+            <div class="d-flex align-items-center">
+                <div class="me-4">
+                    <img src="https://ui-avatars.com/api/?name={{data.name}}&background=debf0a&color=fff&bold=true&size=128" 
+                         class="rounded-circle border border-4 border-white shadow-sm" width="80">
+                </div>
+                <div>
+                    <h3 class="fw-bold text-dark mb-1">{{data.name}}</h3>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-light text-dark border">Roll: {{request.form['roll']}}</span>
+                        <span class="badge bg-light text-dark border">Academic Year: {{data.year}}</span>
+                        <span class="badge {% if data.percent|float >= 80 %}bg-success{% else %}bg-danger{% endif %} shadow-sm">
+                            Status: {{ 'Eligible' if data.percent|float >= 80 else 'Shortage' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<a class="nav-link" href="/">
-<i class="material-icons">home</i> Home
-</a>
+        <div class="row g-4 mb-2">
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 h-100 d-flex align-items-center">
+                    <div class="position-relative me-3" style="width: 70px; height: 70px;">
+                        <svg width="70" height="70" viewBox="0 0 120 120" class="circle-svg">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="#f1f5f9" stroke-width="12" />
+                            <circle id="attendanceCircle" cx="60" cy="60" r="50" fill="none" 
+                                    stroke="{% if data.percent|float >= 80 %}#10b981{% elif data.percent|float >= 70 %}#f59e0b{% else %}#ef4444{% endif %}" 
+                                    stroke-width="12" stroke-linecap="round" stroke-dasharray="314.159" stroke-dashoffset="314.159" />
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <small class="fw-bold" style="font-size: 0.75rem;">{{data.percent}}%</small>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-0">Attendance</p>
+                        <h5 class="fw-bold mb-0">Total Score</h5>
+                    </div>
+                </div>
+            </div>
 
-<a class="nav-link" href="/add">
-<i class="material-icons">person_add</i> Add Student
-</a>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 h-100 d-flex align-items-center">
+                    <div class="icon-box bg-primary shadow-sm">
+                        <i class="material-icons">check_circle</i>
+                    </div>
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-0">Attended</p>
+                        <h5 class="fw-bold mb-0">{{data.attended}} Days</h5>
+                    </div>
+                </div>
+            </div>
 
-<a class="nav-link" href="{{ url_for('attendance_log') }}">
-<i class="material-icons">history</i> Logs
-</a>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 h-100 d-flex align-items-center">
+                    <div class="icon-box bg-danger shadow-sm">
+                        <i class="material-icons">cancel</i>
+                    </div>
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-0">Absences</p>
+                        <h5 class="fw-bold mb-0">{{data.already_leave}} Days</h5>
+                    </div>
+                </div>
+            </div>
 
-<a class="nav-link" href="{{ url_for('update_student_details') }}">
-<i class="material-icons">people</i> Manage Students
-</a>
+            <div class="col-xl-3 col-md-6">
+                <div class="glass-card p-3 h-100 d-flex align-items-center border-bottom border-4 {% if data.can_leave == -1 %}border-danger{% else %}border-success{% endif %}">
+                    <div class="icon-box {% if data.can_leave == -1 %}bg-danger{% else %}bg-success{% endif %} shadow-sm">
+                        <i class="material-icons">event_note</i>
+                    </div>
+                    <div>
+                        <p class="text-muted small text-uppercase fw-bold mb-0">Safe Leaves</p>
+                        <h5 class="fw-bold mb-0">{% if data.can_leave == -1 %}0{% else %}{{data.can_leave}}{% endif %} Remaining</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<a class="nav-link" href="{{ url_for('set_time_periods') }}">
-<i class="material-icons">timer</i> Schedule
-</a>
+        <div class="glass-card">
+            <div class="card-header-custom">
+                <div class="d-flex align-items-center">
+                    <i class="material-icons me-2 text-muted">analytics</i>
+                    <span>Detailed Statistics</span>
+                </div>
+                <div class="text-muted small">Live Calculation</div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Metric Category</th>
+                            <th>Current Observation</th>
+                            <th class="pe-4">Semester Projection</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="ps-4 fw-bold">Semester Progress</td>
+                            <td>{{data.working_till_today}} / {{data.total_semester_days}} Working Days</td>
+                            <td class="pe-4">
+                                {% set progress_val = (data.working_till_today / data.total_semester_days * 100)|round(1) %}
+                                <div class="table-progress mb-1">
+                                    <div class="progress-bar bg-warning" style="width: {{ progress_val }}%; height: 100%;"></div>
+                                </div>
+                                <small class="text-muted">{{ data.total_semester_days - data.working_till_today }} days left in semester</small>
+                            </td>
+                        </tr>
 
-<a class="nav-link" href="{{ url_for('email_settings') }}">
-<i class="material-icons">settings</i> Email Config
-</a>
+                        <tr>
+                            <td class="ps-4 fw-bold">Goal Comparison</td>
+                            <td>
+                                <span class="text-dark">{{data.percent}}% Actual</span>
+                            </td>
+                            <td class="pe-4">
+                                <span class="badge bg-dark me-1">Target: 80%</span>
+                                {% if data.percent|float < 80 %}
+                                <small class="text-danger fw-bold">-{{ (80.0 - data.percent|float)|round(2) }}% below target</small>
+                                {% else %}
+                                <small class="text-success fw-bold">+{{ (data.percent|float - 80.0)|round(2) }}% above target</small>
+                                {% endif %}
+                            </td>
+                        </tr>
 
-<a class="nav-link" href="/start">
-<i class="material-icons">camera_alt</i> Take Attendance
-</a>
+                         <tr>
+                                <td class="ps-4 fw-bold">System Remark</td>
+                                <td colspan="2">
+                                    {% if data.can_leave == -1 %}
+                                    <span class="text-danger fw-bold d-flex align-items-center">
+                                        <i class="material-icons me-1" style="font-size: 18px;">warning</i> 
+                                        Critical: Below required threshold.
+                                    </span>
+                                    {% else %}
+                                    <span class="text-success fw-bold d-flex align-items-center">
+                                        <i class="material-icons me-1" style="font-size: 18px;">check_circle</i> 
+                                        On Track: Maintaining eligibility.
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<a class="nav-link" href="/analytics">
-<i class="material-icons">insights</i> Analytics
-</a>
+        {% else %}
+        <div class="text-center py-5 mt-5">
+            <i class="material-icons text-muted" style="font-size: 80px; opacity: 0.2;">person_search</i>
+            <h4 class="text-secondary mt-3">Ready to Check?</h4>
+            <p class="text-muted">Enter a roll number above to view real-time attendance analytics.</p>
+        </div>
+        {% endif %}
+    </div>
 
-<a class="nav-link active" href="/student_dashboard">
-<i class="material-icons">person</i> Student Dashboard
-</a>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var circle = document.getElementById("attendanceCircle");
+            if (!circle) return;
 
-<a class="nav-link" href="/working_days">
-<i class="material-icons">event</i> Working Days
-</a>
+            var percent = parseFloat("{{ data.percent if data else 0 }}");
+            if (isNaN(percent)) percent = 0;
 
-</div>
+            var r = 50;
+            var circumference = 2 * Math.PI * r;
 
-<div class="footer-credit">
-Admin: Sabarish.R
-</div>
+            circle.style.strokeDasharray = circumference;
+            circle.style.strokeDashoffset = circumference;
 
-</div>
-
-<!-- =============== CONTENT AREA =============== -->
-
-<div class="content-wrapper">
-
-<h2 class="fw-bold mb-3">Individual Student Dashboard</h2>
-
-<!-- SEARCH -->
-<div class="glass-card mb-3">
-<div class="card-header-custom">
-<i class="material-icons me-2">search</i>
-Search Student
-</div>
-
-<div class="p-3">
-<form method="post" class="row">
-
-<div class="col-4">
-<input name="roll" class="form-control" placeholder="Enter Roll Number">
-</div>
-
-<div class="col-2">
-<button class="btn btn-dark">Search</button>
-</div>
-
-</form>
-</div>
-</div>
-
-{% if error %}
-<div class="alert alert-danger">
-{{error}}
-</div>
-{% endif %}
-
-{% if data %}
-
-<div class="glass-card">
-
-<div class="card-header-custom">
-<i class="material-icons me-2">insights</i>
-{{data.name}} - Attendance Report
-</div>
-
-<div class="p-3">
-
-<table class="table">
-
-<tr>
-<th>Total Semester Working Days</th>
-<td>{{data.total_semester_days}}</td>
-</tr>
-
-<tr>
-<th>Working Days Till Today</th>
-<td>{{data.working_till_today}}</td>
-</tr>
-
-<tr>
-<th>Days Attended</th>
-<td>{{data.attended}}</td>
-</tr>
-
-<tr>
-<th>Attendance %</th>
-<td class="fw-bold">{{data.percent}}%</td>
-</tr>
-
-<tr>
-<th>Leaves Already Taken</th>
-<td>{{data.already_leave}}</td>
-</tr>
-
-<tr>
-<th>Leaves Can Take to Maintain 80%</th>
-
-<td class="fw-bold
-{% if data.can_leave == -1 %}
-text-danger
-{% else %}
-text-success
-{% endif %}
-">
-
-{% if data.can_leave == -1 %}
-Cannot maintain 80% attendance
-{% else %}
-{{data.can_leave}} days
-{% endif %}
-
-</td>
-</tr>
-
-</table>
-
-</div>
-</div>
-
-{% endif %}
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
-
+            setTimeout(function () {
+                var offset = circumference * (1 - percent / 100);
+                circle.style.transition = "stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)";
+                circle.style.strokeDashoffset = offset;
+            }, 150);
+        });
+    </script>
 </body>
+
 </html>
+
