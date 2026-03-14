@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Working Days | BIT Attendance Portal</title>
+    <style>
+        :root 
+        { --sidebar-width: 260px; --primary-gold: #debf0a; --dark-bg: #1e293b; }
+        body { background-color: #ffffff; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; margin: 0; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--dark-bg); color: white; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-header { padding: 25px 20px; text-align: center; background: rgba(0,0,0,0.2); }
+        .sidebar-header h4 { font-size: 1.1rem; color: var(--primary-gold); margin: 0; font-weight: 700; text-transform: uppercase; }
+        .nav-menu { flex-grow: 1; padding-top: 20px; }
+        .nav-link { color: #cbd5e1 !important; padding: 12px 25px; display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
+        .nav-link:hover { background: rgba(255,255,255,0.1); color: white !important; }
+        .nav-link.active { background: rgba(255,255,255,0.1); color: white !important; border-left: 4px solid var(--primary-gold); }
+        .nav-link i { margin-right: 12px; font-size: 20px; }
+        .content-wrapper { flex-grow: 1; overflow-y: auto; background-color: #f8fafc; padding: 30px; }
+        .glass-card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .card-header-custom { padding: 15px 20px; border-bottom: 2px solid var(--primary-gold); display: flex; align-items: center; font-weight: 600; }
+        .footer-credit {padding: 15px;font-size: 11px;color: #94a3b8;text-align: center;border-top: 1px solid rgba(255,255,255,0.05);}
+
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h4>BIT PORTAL</h4></div>
+
+        {% include 'sidebar.html' %}
+        
+        <div class="footer-credit">
+            Admin: BIT
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <h2 class="fw-bold mb-3">Academic Calendar Management</h2>
+        <div class="glass-card">
+            <div class="card-header-custom"><i class="material-icons me-2">event</i> Configure Year-Specific Working Days</div>
+            <div class="p-4"> 
+                <form method="post">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="fw-bold mb-2">Target Year</label>
+                            <select name="target_year" class="form-select" required>
+                                <option value="" disabled selected>Select Year...</option>
+                                <option value="I">1st Year</option>
+                                <option value="II">2nd Year</option>
+                                <option value="III">3rd Year</option>
+                                <option value="IV">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-3"><label class="fw-bold">Start Date</label><input name="start" type="date" class="form-control" required></div>
+                        <div class="col-md-3"><label class="fw-bold">End Date</label><input name="end" type="date" class="form-control" required></div>
+                    </div>
+                    <h5 class="mt-4 fw-bold">Weekly Off</h5>
+                    <div class="mb-3">
+                        <input type="checkbox" name="weekly" value="Sunday" checked> Sunday  
+                        <input type="checkbox" name="weekly" value="Saturday"> Saturday
+                    </div>
+                    <h5 class="mt-4 fw-bold">Add Holidays</h5>
+                    <div id="holidayBox"><input name="holidays" type="date" class="form-control mb-2"></div>
+                    <button type="button" class="btn btn-outline-dark btn-sm mt-2" onclick="addHoliday()">+ Add More</button>
+                    <hr class="my-4">
+                    <button type="submit" class="btn btn-warning fw-bold">Save Configuration</button>
+                </form>
+            </div>
+        </div>
+
+        {% if configs %}
+        <div class="glass-card mt-4">
+            <div class="card-header-custom">Active Schedules</div>
+            <div class="p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr><th>Year</th><th>Start Date</th><th>End Date</th><th>Weekly Off</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for c in configs %}
+                        <tr><td>Year {{ c.year }}</td><td>{{ c.start_date }}</td><td>{{ c.end_date }}</td><td>{{ c.weekly_off|join(', ') }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function addHoliday() {
+            let box = document.getElementById("holidayBox");
+            let input = document.createElement("input");
+            input.type = "date"; input.name = "holidays"; input.className = "form-control mb-2";
+            box.appendChild(input);
+        }
+    </script>
+</body>
+</html>
