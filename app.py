@@ -1069,5 +1069,31 @@ def student_dashboard():
 
     return render_template("student_dashboard.html", data=data, error=error)
 
+@app.route('/working_days', methods=['GET','POST'])
+def working_days():
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+        
+    if request.method == 'POST':
+        # Capture the year this config belongs to
+        target_year = request.form.get('target_year')
+        
+        db.academic_config.update_one(
+            {"year": target_year},
+            {"$set":{
+                "year": target_year,
+                "start_date": request.form['start'],
+                "end_date": request.form['end'],
+                "holidays": request.form.getlist('holidays'),
+                "weekly_off": request.form.getlist('weekly')
+            }},
+            upsert=True
+        )
+        flash(f"Configuration for Year {target_year} saved successfully!", "success")
+
+    # Fetch all configurations to show in the UI if needed
+    configs = list(db.academic_config.find())
+    return render_template("working_days.html", configs=configs)
+
 if __name__ == '__main__':
     app.run(debug=True)
