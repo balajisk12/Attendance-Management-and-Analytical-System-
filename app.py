@@ -1095,5 +1095,60 @@ def working_days():
     configs = list(db.academic_config.find())
     return render_template("working_days.html", configs=configs)
 
+@app.route('/analytics', methods=['GET'])
+def analytics():
+
+    selected_date = request.args.get('date')
+    selected_year = request.args.get('year')
+
+    if not selected_date:
+        selected_date = date.today().strftime("%Y-%m-%d")
+
+    # ----- ROMAN YEAR FILTER -----
+    student_filter = {}
+
+    if selected_year and selected_year != "":
+        student_filter = {"year": selected_year}
+    # -----------------------------
+
+    # 1. Department Summary
+    table_data = department_analytics_by_date(selected_date, selected_year)
+
+    # 2. Absent Students
+    try:
+        db_date_format = datetime.strptime(selected_date, "%Y-%m-%d").strftime("%m_%d_%y")
+    except:
+        db_date_format = date.today().strftime("%m_%d_%y")
+
+    all_eligible = list(users_collection.find(student_filter))
+
+    present_rolls = attendance_collection.distinct(
+        "roll",
+        {"date": db_date_format}
+    )
+
+    absent_students = []
+
+    for s in all_eligible:
+
+        if s['id'] not in present_rolls:
+
+            absent_students.append({
+                "roll": s['id'],
+                "name": s['name'],
+                "dept": s.get('department', '-'),
+                "year": s.get('year', '-')
+            })
+
+    return render_template(
+        "analytics_dashboard.html",
+        data=table_data,
+        absent_students=absent_students,
+        selected_date=selected_date,
+        selected_year=selected_year
+    )
+
+
+
 if __name__ == '__main__':
     app.run(debug=True)
