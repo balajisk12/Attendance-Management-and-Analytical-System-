@@ -1095,6 +1095,62 @@ def working_days():
     configs = list(db.academic_config.find())
     return render_template("working_days.html", configs=configs)
 
+def year_wise_chart(selected_date):
+    chart_data = {}
+
+    try:
+        db_date = datetime.strptime(selected_date, "%Y-%m-%d").strftime("%m_%d_%y")
+    except:
+        db_date = date.today().strftime("%m_%d_%y")
+
+    for year in ['1', '2', '3', '4']:
+
+        year_filter = {
+            "$or": [
+                {"year": year},
+                {"year": str(year)},
+                {"year": int(year)}
+            ]
+        }
+
+        depts = users_collection.distinct("department", year_filter)
+
+        data = []
+
+        for d in depts:
+
+            students = list(users_collection.find({
+                "department": d,
+                "$or": [
+                    {"year": year},
+                    {"year": str(year)},
+                    {"year": int(year)}
+                ]
+            }))
+
+            total = len(students)
+
+            if total == 0:
+                continue
+
+            rolls = [s['id'] for s in students]
+
+            present = attendance_collection.count_documents({
+                "roll": {"$in": rolls},
+                "date": db_date
+            })
+
+            percent = round((present / total) * 100, 1)
+
+            data.append({
+                "dept": d,
+                "percent": percent
+            })
+
+        chart_data[year] = data
+
+    return chart_data
+
 @app.route('/analytics', methods=['GET'])
 def analytics():
 
