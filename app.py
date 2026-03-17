@@ -1150,7 +1150,58 @@ def year_wise_chart(selected_date):
         chart_data[year] = data
 
     return chart_data
+def department_analytics_by_date(selected_date, selected_year=None):
 
+    result = []
+
+    # Convert date
+    try:
+        db_date_format = datetime.strptime(selected_date, "%Y-%m-%d").strftime("%m_%d_%y")
+    except:
+        db_date_format = date.today().strftime("%m_%d_%y")
+
+    # ----- ROMAN YEAR FILTER -----
+    year_filter = {}
+    if selected_year and selected_year != "":
+        year_filter = {"year": selected_year}
+    # -----------------------------
+
+    # Get departments
+    if year_filter:
+        depts = users_collection.distinct("department", year_filter)
+    else:
+        depts = users_collection.distinct("department")
+
+    for d in depts:
+
+        student_query = {"department": d}
+
+        if year_filter:
+            student_query.update(year_filter)
+
+        students = list(users_collection.find(student_query))
+
+        total = len(students)
+        if total == 0:
+            continue
+
+        # Student ID field
+        rolls = [s['id'] for s in students]
+
+        present = attendance_collection.count_documents({
+            "roll": {"$in": rolls},
+            "date": db_date_format
+        })
+
+        result.append({
+            "dept": d,
+            "total": total,
+            "present": present,
+            "absent": total - present,
+            "present_percent": round((present / total) * 100, 2)
+        })
+
+    return result
 @app.route('/analytics', methods=['GET'])
 def analytics():
 
