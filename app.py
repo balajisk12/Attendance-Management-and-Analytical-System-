@@ -1204,6 +1204,9 @@ def department_analytics_by_date(selected_date, selected_year=None):
 
 @app.route('/analytics', methods=['GET'])
 def analytics():
+    if session.get('role') != 'admin' and session.get('role') != 'faculty': # or if session.get('role') not in ['admin', 'faculty']: 
+        flash("Unauthorized Access!")
+        return redirect(url_for('home'))
 
     selected_date = request.args.get('date')
     selected_year = request.args.get('year')
@@ -1254,8 +1257,6 @@ def analytics():
         selected_date=selected_date,
         selected_year=selected_year
     )
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
