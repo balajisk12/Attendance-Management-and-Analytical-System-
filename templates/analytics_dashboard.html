@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 
@@ -26,7 +25,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar Styling - Matched to Home */
+        /* Sidebar Styling */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--dark-bg);
@@ -107,7 +106,7 @@
             background: #fff;
         }
 
-        /* Table Styling - Matched to Home */
+        /* Table Styling */
         .table thead {
             background-color: #f1f5f9;
         }
@@ -120,11 +119,6 @@
             color: #475569;
             border: none;
             padding: 12px 20px;
-        }
-
-        .table tbody td {
-            padding: 12px 20px;
-            vertical-align: middle;
         }
 
         .badge-absent {
@@ -159,18 +153,7 @@
             <h4>BIT PORTAL</h4>
         </div>
 
-        <div class="nav-menu">
-            <a class="nav-link" href="/"><i class="material-icons">home</i> Home</a>
-            <a class="nav-link" href="/add"><i class="material-icons">person_add</i> Add Student</a>
-            <a class="nav-link" href="{{ url_for('attendance_log') }}"><i class="material-icons">history</i> Logs</a>
-            <a class="nav-link" href="{{ url_for('update_student_details') }}"><i class="material-icons">people</i> Manage Students</a>
-            <a class="nav-link" href="{{ url_for('set_time_periods') }}"><i class="material-icons">timer</i> Schedule</a>
-            <a class="nav-link" href="{{ url_for('email_settings') }}"><i class="material-icons">settings</i> Email Config</a>
-            <a class="nav-link" href="/start"><i class="material-icons">camera_alt</i> Take Attendance</a>
-            <a class="nav-link active" href="/analytics"><i class="material-icons">insights</i> Analytics</a>
-            <a class="nav-link" href="/student_dashboard"><i class="material-icons">person</i> Student Dashboard</a>
-            <a class="nav-link" href="/working_days"><i class="material-icons">event</i> Working Days</a>
-        </div>
+        {% include 'sidebar.html' %}
 
         <div class="footer-credit">
             Admin: BIT
@@ -194,10 +177,10 @@
                         <label class="form-label small fw-bold text-muted">Academic Year</label>
                         <select name="year" class="form-select">
                             <option value="">All Years</option>
-                            <option value="I" {% if selected_year|string == 'I' %}selected{% endif %}>I Year</option>
-                            <option value="II" {% if selected_year|string == 'II' %}selected{% endif %}>II Year</option>
-                            <option value="III" {% if selected_year|string == 'III' %}selected{% endif %}>III Year</option>
-                            <option value="IV" {% if selected_year|string == 'IV' %}selected{% endif %}>IV Year</option>
+                            <option value="I" {% if selected_year|string == '1' %}selected{% endif %}>1st Year</option>
+                            <option value="II" {% if selected_year|string == '2' %}selected{% endif %}>2nd Year</option>
+                            <option value="III" {% if selected_year|string == '3' %}selected{% endif %}>3rd Year</option>
+                            <option value="IV" {% if selected_year|string == '4' %}selected{% endif %}>4th Year</option>
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -257,11 +240,17 @@
             <div class="card-header-custom">
                 <div class="d-flex align-items-center">
                     <i class="material-icons me-2 text-muted">person_off</i>
-                    <span>Absent Students</span>
+                    <span>Absent Students List</span>
+                </div>
+                <div class="d-flex align-items-center" style="width: 320px; position: relative;">
+                    <i class="material-icons" style="position: absolute; left: 10px; color: #94a3b8; font-size: 18px;">search</i>
+                    <input type="text" id="deptSearchInput" class="form-control form-control-sm ps-5" 
+                           placeholder="Filter list by Department..." 
+                           style="border-radius: 8px; border: 1px solid #e2e8f0; height: 36px;">
                 </div>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0" id="absentTable">
                     <thead>
                         <tr>
                             <th>Roll Number</th>
@@ -277,8 +266,8 @@
                         <tr>
                             <td class="text-secondary">{{ s.roll }}</td>
                             <td><span class="fw-bold text-dark">{{ s.name }}</span></td>
-                            <td>{{ s.dept }}</td>
-                            <td>{{ s.year }} Year</td>
+                            <td class="dept-name">{{ s.dept }}</td>
+                            <td>Year {{ s.year }}</td>
                             <td class="text-end">
                                 <span class="badge-absent">Absent</span>
                             </td>
@@ -288,7 +277,7 @@
                         <tr>
                             <td colspan="5" class="text-center py-5 text-muted">
                                 <i class="material-icons d-block mb-2" style="font-size: 48px; opacity: 0.3;">check_circle</i>
-                                No absentees recorded.
+                                No absentees recorded for this selection.
                             </td>
                         </tr>
                         {% endif %}
@@ -299,6 +288,27 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Live Filter for Absent Students Table by Department
+        document.getElementById('deptSearchInput').addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#absentTable tbody tr');
+
+            rows.forEach(row => {
+                // Ensure the row is not the "No data" row
+                const deptCell = row.querySelector('.dept-name');
+                if (deptCell) {
+                    const deptText = deptCell.textContent.toLowerCase();
+                    if (deptText.includes(searchTerm)) {
+                        row.style.display = "";
+                    } else {
+                        row.style.display = "none";
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
