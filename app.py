@@ -1258,5 +1258,33 @@ def analytics():
         selected_year=selected_year
     )
 
+@app.route('/grace_view')
+def grace_view():
+
+    date_filter = request.args.get('date')
+    roll_filter = request.args.get('roll')
+
+    query = {}
+    
+    if date_filter:
+        try:
+            db_date = datetime.strptime(date_filter, "%Y-%m-%d").strftime("%m_%d_%y")
+            query["date"] = db_date
+        except:
+            pass
+
+    if roll_filter:
+        query["roll"] = roll_filter.strip()
+
+    records = list(grace_attendance_collection.find(query).sort("date", -1))
+
+    return render_template(
+        "grace_attendance.html",
+        records=records,
+        selected_date=date_filter,
+        selected_roll=roll_filter
+    )
+
+
 if __name__ == '__main__':
     app.run(debug=True)
