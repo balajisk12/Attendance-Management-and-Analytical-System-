@@ -1,3 +1,4 @@
+from bson import ObjectId
 from flask import Flask, request, render_template, redirect, url_for, flash, session , Response , jsonify
 import os
 import cv2
@@ -52,6 +53,8 @@ cipher_suite = Fernet(key)
 client = MongoClient('mongodb://localhost:27017/')
 db = client.attendance_db
 users_collection = db.users
+grace_attendance_collection = db.grace_attendance
+grace_request_collection = db.grace_request
 attendance_collection = db.attendance
 time_periods_collection = db.time_periods
 feedback_collection = db.feedback
@@ -1258,6 +1261,7 @@ def analytics():
         selected_year=selected_year
     )
 
+
 @app.route('/grace_view')
 def grace_view():
 
@@ -1265,7 +1269,8 @@ def grace_view():
     roll_filter = request.args.get('roll')
 
     query = {}
-    
+
+    # Date filter convert 2026-02-07 → 02_07_26
     if date_filter:
         try:
             db_date = datetime.strptime(date_filter, "%Y-%m-%d").strftime("%m_%d_%y")
@@ -1284,6 +1289,129 @@ def grace_view():
         selected_date=date_filter,
         selected_roll=roll_filter
     )
+
+@app.route('/grace_request', methods=['GET', 'POST'])
+def grace_request():
+    # 1. Check Authentication
+    user_email = session.get('email')
+    if not user_email:
+        return redirect(url_for('login'))
+
+    # 2. Get Student Data
+    student = users_collection.find_one({"email": user_email})
+    if not student:
+        return "Student Not Found", 404
+
+    # 3. Handle Session Selection & Today's Date
+    selected_session = request.form.get('session')
+    today = date.today().strftime("%m_%d_%y")
+    
+    # 4. Fetch Grace Entry (Populates the Date/Time fields)
+    grace = None
+    if selected_session:
+        grace = grace_attendance_collection.find_one({
+            "roll": student['id'],
+            "date": today,
+            "session": selected_session
+        })
+
+    message = None
+
+    # 5. Process Form Submission
+    if request.method == 'POST' and request.form.get('reason'):
+        # Safety Check: Ensure the grace data actually exists in DB before saving request
+        # This prevents manual HTML manipulation of the 'readonly' fields
+        if not grace or not grace.get('time') or not grace.get('date'):
+            message = "Error: System Date and Time are mandatory. No valid log found for this session."
+        
+        else:
+            # Prepare Data for Submission
+            request_data = {
+                "roll": student['id'],
+                "name": student['name'],
+                "email": student['email'],
+                "phone": student.get('phone'),
+                "department": student.get('department'),
+                "year": student.get('year'),
+                "mentor_name": student.get('mentor_name'),
+                "mentor_email": student.get('mentor_email'),
+                "session": selected_session,
+                
+                # These are pulled directly from the 'grace' DB record found above
+                "date": grace['date'], 
+                "time": grace['time'],
+                
+                "reason": request.form.get('reason'),
+                "status": "pending",
+                "applied_on": datetime.now()
+            }
+
+            # Insert into the Request Collection
+            try:
+                grace_request_collection.insert_one(request_data)
+                message = "Request Submitted Successfully"
+                # Optional: Reset variables so fields clear after success
+                grace = None
+                selected_session = None
+            except Exception as e:
+                message = f"Database Error: {str(e)}"
+
+    return render_template(
+        "grace_request.html",
+        student=student,
+        grace=grace,
+        selected_session=selected_session,
+        message=message
+    )
+ 
+@app.route('/grace_request_manage')
+def grace_request_manage():
+
+    requests = list(grace_request_collection.find().sort("applied_on", -1))
+
+    return render_template(
+        "grace_request_admin.html",
+        requests=requests
+    )
+
+@app.route('/approve_grace/<id>')
+def approve_grace(id):
+
+    req = grace_request_collection.find_one({"_id": ObjectId(id)})
+
+    if not req:
+        return "Request Not Found"
+
+
+    # ---- ADD TO MAIN ATTENDANCE ----
+    attendance_collection.insert_one({
+
+        "name": req['name'],
+        "roll": req['roll'],
+
+        "time": req['time'],
+        "date": req['date'],
+
+        "session": req['session']
+    })
+
+    # ---- UPDATE STATUS ----
+    grace_request_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"status": "approved"}}
+    )
+    return redirect(url_for('grace_request_manage'))
+
+@app.route('/zreject_grace/<id>')
+def reject_grace(id):
+
+    grace_request_collection.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"status": "rejected"}}
+    )
+
+    return redirect(url_for('grace_request_manage'))
+
 
 
 if __name__ == '__main__':
