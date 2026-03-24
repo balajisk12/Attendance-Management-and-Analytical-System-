@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Grace Request | BIT Attendance Portal</title>
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling (Matches home.html) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card-header-custom {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control[readonly] {
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>BIT PORTAL</h4>
+        </div>
+        
+        {% include 'sidebar.html' %}
+        
+        <div class="footer-credit">
+            Admin: BIT
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="mb-4">
+            <h2 class="fw-bold text-dark mb-0">Grace Attendance Request</h2>
+            <p class="text-muted small">Submit special permission for attendance records</p>
+        </div>
+
+        <div class="glass-card">
+            <div class="card-header-custom">
+                <div class="d-flex align-items-center">
+                    <i class="material-icons me-2 text-muted">description</i>
+                    <span>Request Details</span>
+                </div>
+                <div class="badge bg-light text-dark border">Academic Year 2025-26</div>
+            </div>
+            
+            {% if message %}
+                    <div class="alert {% if 'Successfully' in message %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show shadow-sm border-0 mb-4" role="alert">
+                        <i class="material-icons align-middle me-2">{% if 'Successfully' in message %}check_circle{% else %}error{% endif %}</i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+            {% endif %}
+
+            <div class="p-4">
+                <form method="POST">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Roll Number</label>
+                            <select name="roll" class="form-control" readonly>
+                                <option value="{{ student.id }}">{{ student.id }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Full Name</label>
+                            <input class="form-control" name="name" value="{{ student.name }}" readonly>
+                        </div>
+                    </div>
+
+                    <hr class="text-muted opacity-25">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input class="form-control" name="email" value="{{ student.email }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Number</label>
+                            <input class="form-control" name="phone" value="{{ student.phone }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Department</label>
+                            <input class="form-control" name="department" value="{{ student.department }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Current Year</label>
+                            <input class="form-control" name="year" value="{{ student.year }}" readonly>
+                        </div>
+                    </div>
+
+                    <hr class="text-muted opacity-25">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Mentor Name</label>
+                            <input class="form-control" name="mentor_name" value="{{ student.mentor_name }}" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mentor Email</label>
+                            <input class="form-control" name="mentor_email" value="{{ student.mentor_email }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label text-primary">Attendance Session <span class="text-danger">*</span></label>
+                            <select name="session" class="form-select form-control border-primary" required onchange="this.form.submit()">
+                                <option value="">-- Choose Session --</option>
+                                <option value="forenoon" {% if selected_session == 'forenoon' %}selected{% endif %}>Forenoon</option>
+                                <option value="afternoon" {% if selected_session == 'afternoon' %}selected{% endif %}>Afternoon</option>
+                            </select>
+                        </div>
+                    </div>
+                   
+                    
+                    <div class="row g-3 mb-4 p-3 rounded" style="background-color: #fffbeb; border: 1px dashed var(--primary-gold);">
+                       <div class="col-md-6">
+                           <label class="form-label">System Date</label>
+                           <input class="form-control" name="date" value="{{ grace.date|replace('_','-') if grace }}" readonly required>
+                                           </div>
+                       <div class="col-md-6">
+                           <label class="form-label">System Time</label>
+                           <input class="form-control" name="time" value="{{ grace.time if grace }}" readonly required>
+                      </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-primary">Reason for Grace <span class="text-danger">*</span></label>
+                        <textarea name="reason" class="form-control" rows="4" placeholder="Briefly explain why grace attendance is required..." required></textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-dark btn-lg shadow-sm">
+                            <span class="d-flex align-items-center justify-content-center">
+                                <i class="material-icons me-2">send</i> Submit Grace Request
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

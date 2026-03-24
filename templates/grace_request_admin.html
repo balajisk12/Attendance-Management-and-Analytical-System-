@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>Grace Requests | BIT Attendance Portal</title>
+
+    <style>
+        :root {
+            --sidebar-width: 260px;
+            --primary-gold: #debf0a;
+            --dark-bg: #1e293b;
+        }
+
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            color: var(--primary-gold);
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Content Area */
+        .content-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f8fafc;
+            padding: 30px;
+        }
+
+        .glass-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .card-header-custom {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--primary-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        /* Table Styling */
+        .table thead {
+            background-color: #f1f5f9;
+        }
+
+        .table thead th {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            color: #475569;
+            border: none;
+        }
+
+        .footer-credit {
+            padding: 15px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .reason-text {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>BIT PORTAL</h4>
+        </div>
+        
+        {% include 'sidebar.html' %}
+        
+        <div class="footer-credit">
+            Admin: BIT
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-0">Grace Request Management</h2>
+                <p class="text-muted small">Review and manage student attendance grace period requests</p>
+            </div>
+            <span class="badge bg-dark px-3 py-2">Total Requests: {{ requests|length }}</span>
+        </div>
+
+        <div class="row g-0">
+            <div class="col-12">
+                <div class="glass-card">
+                    <div class="card-header-custom">
+                        <div class="d-flex align-items-center">
+                            <i class="material-icons me-2 text-muted">history_edu</i>
+                            <span>Pending & Recent Requests</span>
+                        </div>
+                    </div>
+                    
+                    <div class="p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Student</th>
+                                        <th>Roll Number</th>
+                                        <th>Date & Time</th>
+                                        <th>Session</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th class="pe-4 text-end">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in requests %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="fw-bold text-dark">{{ r.name }}</span>
+                                        </td>
+                                        <td class="text-secondary">{{ r.roll }}</td>
+                                        <td>
+                                            <div class="small fw-bold">{{ r.date.replace("_","-") }}</div>
+                                            <div class="text-muted small">{{ r.time }}</div>
+                                        </td>
+                                        <td>
+                                            {% if r.session == 'forenoon' %}
+                                                <span class="badge" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;">☀ Forenoon</span>
+                                            {% elif r.session == 'afternoon' %}
+                                                <span class="badge" style="background:#cfe2ff; color:#084298; border:1px solid #b6d4fe;">🌤 Afternoon</span>
+                                            {% else %}
+                                                <span class="badge bg-light text-dark border">{{ r.session }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small reason-text" title="{{ r.reason }}">
+                                                {{ r.reason }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if r.status == 'pending' %}
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            {% elif r.status == 'approved' %}
+                                                <span class="badge bg-success">Approved</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">{{ r.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="pe-4 text-end">
+                                            {% if r.status == 'pending' %}
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('approve_grace', id=r._id) }}" 
+                                                   class="btn btn-sm btn-success me-2 d-flex align-items-center">
+                                                   <i class="material-icons style-sm me-1" style="font-size: 16px;">check</i> Approve
+                                                </a>
+                                                <a href="{{ url_for('reject_grace', id=r._id) }}" 
+                                                   class="btn btn-sm btn-outline-danger d-flex align-items-center"
+                                                   onclick="return confirm('Reject this request?');">
+                                                   <i class="material-icons me-1" style="font-size: 16px;">close</i> Reject
+                                                </a>
+                                            </div>
+                                            {% else %}
+                                                <span class="text-muted small">Processed</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                    {% if not requests %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5 text-muted">
+                                            <i class="material-icons d-block mb-2" style="font-size: 48px; opacity: 0.3;">assignment_turned_in</i>
+                                            No grace requests found.
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
